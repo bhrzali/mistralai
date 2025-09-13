@@ -9,6 +9,9 @@ import io
 import requests
 from bs4 import BeautifulSoup
 import urllib.parse
+import google.generativeai as genai
+import os
+from quiz_api_client import QuizAPIClient
 
 mcp = FastMCP(name="demo-fastmcp")
 
@@ -19,6 +22,69 @@ app = mcp.http_app
 from documents.document1 import summary as summary1, documentation as documentation1
 from documents.document2 import summary as summary2, documentation as documentation2
 from documents.document3 import summary as summary3, documentation as documentation3
+
+# German Quiz Helper Functions
+def german_cheat_sheet() -> str:
+    """German grammar cheat sheet for quiz generation."""
+    return """
+    GERMAN GRAMMAR CHEAT SHEET:
+    
+    ARTICLES:
+    - Definite: der (masc), die (fem), das (neut), die (pl)
+    - Indefinite: ein (masc), eine (fem), ein (neut), keine (pl)
+    - Cases: Nominativ, Akkusativ, Dativ, Genitiv
+    
+    ADJECTIVES:
+    - Strong declension: when no article precedes
+    - Weak declension: when definite article precedes
+    - Mixed declension: when indefinite article precedes
+    
+    VERBS:
+    - Regular: -en ending, stem changes in present tense
+    - Irregular: strong verbs with vowel changes
+    - Modal verbs: können, müssen, sollen, wollen, dürfen, mögen
+    - Separable verbs: prefix separates in main clause
+    
+    WORD ORDER:
+    - Main clause: Subject-Verb-Object
+    - Subordinate clause: Subject-Object-Verb
+    - Time-Manner-Place rule
+    - Verb always in second position in main clause
+    
+    PREPOSITIONS:
+    - Accusative: durch, für, gegen, ohne, um
+    - Dative: aus, bei, mit, nach, seit, von, zu
+    - Two-way: an, auf, hinter, in, neben, über, unter, vor, zwischen
+    
+    PRONOUNS:
+    - Personal: ich, du, er/sie/es, wir, ihr, sie
+    - Possessive: mein, dein, sein/ihr, unser, euer, ihr
+    - Demonstrative: dieser, jener
+    - Relative: der, die, das
+    
+    CONJUNCTIONS:
+    - Coordinating: und, oder, aber, sondern, denn
+    - Subordinating: weil, dass, wenn, als, obwohl
+    """
+
+def explanation_format() -> str:
+    return """
+    strictly follow the the following format for explanation otherwise you will be penalized.
+    TRANSLATION: [English translation of the German question]
+    AI_ANSWER: [Solve the quesiton and give the correct answer but don't include the option letter in the answer]
+    AI_CORRECTION: [If the sentence with the provided options is incorrect, provide the complete correct German sentence and additionally you must explain your reasoning. If correct, write "No correction needed"] 
+    EXPLANATION: [Brief explantion of the grammar rule in simple terms in English explaining which answer is correct and why. Make your explanation beginner friendly. Don't include the option letter in the explanation]
+    ADDITIONAL_EXAMPLES: example2, example3, example4
+    """
+
+# Initialize Google AI (requires API key)
+def initialize_gemini():
+    """Initialize Google Gemini AI client."""
+    api_key = os.getenv('GEMINI_API_KEY')
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY environment variable is required")
+    genai.configure(api_key=api_key)
+    return genai.GenerativeModel('gemini-2.5-flash')
 
 @mcp.tool
 def function_app_documentation(dummy: str = "") -> str:
@@ -154,298 +220,6 @@ def solve_sudoku(puzzle: str) -> str:
     else:
         original = format_board(board)
         return f"Original Puzzle:\n{original}\n\n❌ This puzzle has no solution!"
-
-# @mcp.tool
-# def process_sudoku_image(dummy: str = "") -> str:
-#     """Process a Sudoku image and extract the puzzle. Reads image from /Users/bhrz/Documents/mcpserver3/client/app/images/image.png
-#     Returns the puzzle in string format that can be used with solve_sudoku tool.
-#     Takes a dummy parameter of string type."""
-    
-#     def preprocess_image(image):
-#         """Preprocess the image for better digit recognition"""
-#         # Convert to grayscale
-#         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        
-#         # Apply Gaussian blur to reduce noise
-#         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-        
-#         # Apply adaptive threshold to get binary image
-#         thresh = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-#                                       cv2.THRESH_BINARY_INV, 11, 2)
-        
-#         return thresh
-    
-#     def find_largest_contour(image):
-#         """Find the largest contour which should be the Sudoku grid"""
-#         contours, _ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-#         if not contours:
-#             return None
-        
-#         # Find the largest contour
-#         largest_contour = max(contours, key=cv2.contourArea)
-#         return largest_contour
-    
-#     def extract_grid_corners(contour):
-#         """Extract the four corners of the Sudoku grid"""
-#         # Approximate the contour to get corners
-#         epsilon = 0.02 * cv2.arcLength(contour, True)
-#         approx = cv2.approxPolyDP(contour, epsilon, True)
-        
-#         if len(approx) == 4:
-#             return approx.reshape(4, 2)
-#         else:
-#             # If we don't have 4 corners, try to find them manually
-#             # This is a simplified approach - in practice you might need more sophisticated corner detection
-#             return None
-    
-#     def perspective_transform(image, corners):
-#         """Apply perspective transform to get a square view of the Sudoku grid"""
-#         # Define the destination points (square)
-#         dst_points = np.array([
-#             [0, 0],
-#             [450, 0],
-#             [450, 450],
-#             [0, 450]
-#         ], dtype=np.float32)
-        
-#         # Apply perspective transform
-#         matrix = cv2.getPerspectiveTransform(corners.astype(np.float32), dst_points)
-#         warped = cv2.warpPerspective(image, matrix, (450, 450))
-        
-#         return warped
-    
-#     def extract_cells(warped_image):
-#         """Extract individual cells from the warped Sudoku grid"""
-#         cells = []
-#         cell_size = 50  # Each cell is 50x50 pixels
-        
-#         for row in range(9):
-#             row_cells = []
-#             for col in range(9):
-#                 # Calculate cell boundaries
-#                 y1 = row * cell_size
-#                 y2 = (row + 1) * cell_size
-#                 x1 = col * cell_size
-#                 x2 = (col + 1) * cell_size
-                
-#                 # Extract cell
-#                 cell = warped_image[y1:y2, x1:x2]
-#                 row_cells.append(cell)
-#             cells.append(row_cells)
-        
-#         return cells
-    
-#     def recognize_digit(cell_image):
-#         """Recognize digit in a cell using simple template matching approach"""
-#         # This is a simplified digit recognition
-#         # In practice, you might want to use a trained model or more sophisticated OCR
-        
-#         # Resize cell to standard size
-#         cell_resized = cv2.resize(cell_image, (28, 28))
-        
-#         # Count non-zero pixels (rough estimate of digit presence)
-#         non_zero_pixels = cv2.countNonZero(cell_resized)
-        
-#         # If there are very few pixels, it's likely empty
-#         if non_zero_pixels < 50:
-#             return '.'
-        
-#         # For this simplified version, we'll use a basic approach
-#         # You might want to implement actual digit recognition here
-#         # For now, we'll return a placeholder that indicates we found something
-#         return '?'
-    
-#     try:
-#         # Read image from specified path
-#         image_path = "/Users/bhrz/Documents/mcpserver3/client/app/images/image.png"
-#         image_cv = cv2.imread(image_path)
-        
-#         if image_cv is None:
-#             return f"Error: Could not read image from {image_path}. Please make sure the file exists."
-        
-#         # Preprocess image
-#         processed = preprocess_image(image_cv)
-        
-#         # Find the largest contour (Sudoku grid)
-#         contour = find_largest_contour(processed)
-#         if contour is None:
-#             return "Error: Could not find Sudoku grid in the image"
-        
-#         # Extract grid corners
-#         corners = extract_grid_corners(contour)
-#         if corners is None:
-#             return "Error: Could not identify Sudoku grid corners"
-        
-#         # Apply perspective transform
-#         warped = perspective_transform(image_cv, corners)
-        
-#         # Convert to grayscale for digit recognition
-#         warped_gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
-        
-#         # Extract individual cells
-#         cells = extract_cells(warped_gray)
-        
-#         # Recognize digits in each cell
-#         puzzle_string = ""
-#         for row in cells:
-#             for cell in row:
-#                 digit = recognize_digit(cell)
-#                 puzzle_string += digit
-        
-#         # Validate the extracted puzzle
-#         if len(puzzle_string) != 81:
-#             return f"Error: Extracted puzzle has {len(puzzle_string)} characters, expected 81"
-        
-#         # Count how many digits we successfully recognized
-#         recognized_digits = sum(1 for c in puzzle_string if c.isdigit())
-#         unknown_cells = sum(1 for c in puzzle_string if c == '?')
-        
-#         result = f"Successfully processed Sudoku image!\n\n"
-#         result += f"Recognized digits: {recognized_digits}\n"
-#         result += f"Unknown cells: {unknown_cells}\n"
-#         result += f"Empty cells: {puzzle_string.count('.')}\n\n"
-#         result += f"Extracted puzzle string:\n{puzzle_string}\n\n"
-        
-#         if unknown_cells > 0:
-#             result += "⚠️  Note: Some cells could not be recognized ('?' characters). "
-#             result += "You may need to manually correct these before solving.\n\n"
-        
-#         result += "You can now use this string with the solve_sudoku tool!"
-        
-#         return result
-        
-#     except Exception as e:
-#         return f"Error processing image: {str(e)}"
-
-@mcp.tool
-def web_search(query: str, num_results: int = 10) -> str:
-    """Search the web for information. Takes a search query and optional number of results (default 5).
-    Returns formatted search results with titles, URLs, and snippets."""
-    
-    def search_duckduckgo(query, num_results=5):
-        """Search using DuckDuckGo (no API key required)"""
-        try:
-            # DuckDuckGo search URL
-            search_url = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote(query)}"
-            
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-            }
-            
-            response = requests.get(search_url, headers=headers, timeout=10)
-            response.raise_for_status()
-            
-            soup = BeautifulSoup(response.content, 'html.parser')
-            
-            results = []
-            result_divs = soup.find_all('div', class_='result')
-            
-            for i, div in enumerate(result_divs[:num_results]):
-                try:
-                    # Extract title
-                    title_elem = div.find('a', class_='result__a')
-                    title = title_elem.get_text().strip() if title_elem else "No title"
-                    
-                    # Extract URL
-                    url = title_elem.get('href') if title_elem else "No URL"
-                    
-                    # Extract snippet
-                    snippet_elem = div.find('a', class_='result__snippet')
-                    snippet = snippet_elem.get_text().strip() if snippet_elem else "No snippet available"
-                    
-                    results.append({
-                        'title': title,
-                        'url': url,
-                        'snippet': snippet
-                    })
-                except Exception as e:
-                    continue
-            
-            return results
-            
-        except Exception as e:
-            return f"Error searching DuckDuckGo: {str(e)}"
-    
-    def search_bing(query, num_results=5):
-        """Alternative search using Bing (fallback)"""
-        try:
-            # Simple Bing search (this is a basic implementation)
-            search_url = f"https://www.bing.com/search?q={urllib.parse.quote(query)}"
-            
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-            }
-            
-            response = requests.get(search_url, headers=headers, timeout=10)
-            response.raise_for_status()
-            
-            soup = BeautifulSoup(response.content, 'html.parser')
-            
-            results = []
-            result_divs = soup.find_all('li', class_='b_algo')
-            
-            for i, div in enumerate(result_divs[:num_results]):
-                try:
-                    # Extract title
-                    title_elem = div.find('h2')
-                    title = title_elem.get_text().strip() if title_elem else "No title"
-                    
-                    # Extract URL
-                    url_elem = div.find('h2').find('a') if div.find('h2') else None
-                    url = url_elem.get('href') if url_elem else "No URL"
-                    
-                    # Extract snippet
-                    snippet_elem = div.find('p')
-                    snippet = snippet_elem.get_text().strip() if snippet_elem else "No snippet available"
-                    
-                    results.append({
-                        'title': title,
-                        'url': url,
-                        'snippet': snippet
-                    })
-                except Exception as e:
-                    continue
-            
-            return results
-            
-        except Exception as e:
-            return f"Error searching Bing: {str(e)}"
-    
-    try:
-        # Validate input
-        if not query or not query.strip():
-            return "Error: Search query cannot be empty"
-        
-        if num_results < 1 or num_results > 10:
-            num_results = 5
-        
-        # Try DuckDuckGo first
-        results = search_duckduckgo(query.strip(), num_results)
-        
-        # If DuckDuckGo fails, try Bing
-        if isinstance(results, str) and "Error" in results:
-            results = search_bing(query.strip(), num_results)
-        
-        # If both fail, return error
-        if isinstance(results, str) and "Error" in results:
-            return results
-        
-        # Format results
-        if not results:
-            return f"No results found for query: '{query}'"
-        
-        formatted_results = f"🔍 Search Results for: '{query}'\n"
-        formatted_results += f"Found {len(results)} results:\n\n"
-        
-        for i, result in enumerate(results, 1):
-            formatted_results += f"{i}. **{result['title']}**\n"
-            formatted_results += f"   URL: {result['url']}\n"
-            formatted_results += f"   {result['snippet']}\n\n"
-        
-        return formatted_results
-        
-    except Exception as e:
-        return f"Error performing web search: {str(e)}"
 
 @mcp.tool
 def browse_url(url: str, max_length: int = 5000) -> str:
@@ -630,6 +404,176 @@ def browse_url(url: str, max_length: int = 5000) -> str:
         return f"Error fetching URL: {str(e)}"
     except Exception as e:
         return f"Error processing webpage: {str(e)}"
+
+@mcp.tool
+def generate_german_quiz(content: str, num_questions: int = 10) -> str:
+    """Generate German language quiz questions based on provided content.
+    
+    Args:
+        content: The content/text to base the questions on
+        num_questions: Number of questions to generate (default 10, max 100)
+    
+    Returns:
+        Formatted quiz with German grammar questions
+    """
+    try:
+        # Validate inputs
+        if not content or not content.strip():
+            return "Error: Content cannot be empty"
+        
+        if num_questions < 1 or num_questions > 100:
+            num_questions = 10
+        
+        # Initialize Gemini AI
+        try:
+            model = initialize_gemini()
+        except ValueError as e:
+            return f"Error: {str(e)}. Please set the GOOGLE_API_KEY environment variable."
+        
+        # Create the system prompt
+        system_prompt = f"""
+            You are an experienced German language instructor with 20 years of teaching experience.
+            Your task is to create EXACTLY {num_questions} PRACTICAL, application-based multiple-choice questions based on the following content:
+
+            Content for reference:
+            {content}
+
+            Guidelines:
+            1. You MUST generate EXACTLY {num_questions} questions - no more, no less.
+            2. Focus on real-world usage, not theory.
+            3. Use authentic, natural German sentences.
+            4. Across the whole set, include at least one of each question type:
+            • Fill in the blank (For fill in the blanks, sentence can have multiple blanks). But make sure not to give unnecessary blanks.
+            • Choose the grammatically correct sentence  
+            • Identify the sentence with the correct word order  
+            • Select the appropriate word/phrase for the context  
+            • Find the sentence that best expresses the given meaning
+            5. Each question must have exactly one correct answer and three plausible distractors.
+            6. Generate varied questions.
+            7. The topic should be a correct german grammar topic and concise
+            8. If the content is not relevant to the german grammar, generate questions related to that content in german language.
+            9. Avoid generating obscene or offensive questions.
+            10. Avoid generating any political or religious questions.
+            11. Make sure the questions are beginner friendly but grammatically correct.
+
+            **GRAMMAR RULES:**
+            Make sure that you are following the correct grammar rules for:
+            - Articles, adjectives, and nouns (gender, case, number agreement)
+            - Verb conjugations and tenses
+            - Word order and sentence structure
+            - Prepositions and their required cases
+            - Pronouns and their declensions
+            - Subordinate clause constructions
+            - Adjectives and their cases
+            - Adverbs and their cases
+            - Prepositions and their cases
+            - Pronouns and their cases
+            - Conjunctions and their cases
+            - Interjections and their cases
+            - Adverbs and their cases
+            - Prepositions and their cases
+            - Pronouns and their cases
+            - Conjunctions and their cases
+            - Interjections and their cases
+            - Commas and their rules
+
+            Refer to the following German cheat sheet for more information:
+            {german_cheat_sheet()}
+
+            **CRITICAL FORMAT REQUIREMENTS:**
+            1. First, output the topic in this EXACT format given below otherwise you will be penalized:
+            
+            TOPIC: <grammar topic in german>
+            EXPLANATION: <brief explanation of why this topic is appropriate>
+
+            2. Then for each question from 1 to {num_questions}, use this EXACT format otherwise you will be penalized:
+
+            Question 1
+            Prompt: <question text in German>
+            A) <option A>
+            B) <option B>
+            C) <option C>
+            D) <option D>
+            Answer: <single uppercase letter A–D>
+            Explanation:
+            ***
+            {explanation_format()}
+            ***
+
+
+            Question 2
+            Prompt: <question text in German>
+            A) <option A>
+            B) <option B>
+            C) <option C>
+            D) <option D>
+            Answer: <single uppercase letter A–D>
+            Explanation:
+            ***
+            {explanation_format()}
+            ***
+
+            [Continue for all {num_questions} questions]
+
+            Format Rules:
+            • You MUST generate EXACTLY {num_questions} questions
+            • Each question MUST start with "Question N" where N is the question number
+            • Each question MUST have all components: Prompt, A-D options, Answer, and Explanation
+            • Each question MUST have only 4 options A, B, C, D. If you follow the format you will be rewarded with big bonus.
+            • Don't forget to enclose the explanation in *** and ***.
+            • Don't forget to provide the explanation according to the format.
+            • Keep the labels ("Prompt:", "A)", "Answer:", etc.) exactly as written
+            • Place one blank line between questions
+            • No extra blank lines inside a question block
+            • Ensure German diacritics are correct
+            • Do not add any markdown, bullets, or headers/footers
+
+            Begin generating the questions now.
+        """
+        
+        # Generate content using Gemini
+        response = model.generate_content(system_prompt)
+        
+        if not response.text:
+            return "Error: No questions were generated. Please try again."
+        
+        # Save response to file and send to API
+        try:
+            from datetime import datetime
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"german_quiz_{timestamp}.txt"
+            
+            # Prepare the full quiz text with metadata
+            full_quiz_text = f"German Quiz Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+            full_quiz_text += f"Number of Questions: {num_questions}\n"
+            full_quiz_text += f"Content Source: {content[:100]}...\n"
+            full_quiz_text += "="*80 + "\n\n"
+            full_quiz_text += response.text
+            
+            # Save to file
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(full_quiz_text)
+            
+            # Send to API
+            api_result = ""
+            try:
+                api_client = QuizAPIClient()
+                api_response = api_client.send_quiz(full_quiz_text)
+                api_result = f"\n✅ Quiz also sent to API successfully!"
+                if isinstance(api_response, dict):
+                    api_result += f"\nAPI Response: {api_response}"
+                else:
+                    api_result += f"\nAPI Response: {str(api_response)[:200]}..."
+            except Exception as api_error:
+                api_result = f"\n⚠️ Failed to send to API: {str(api_error)}"
+            
+            return f"Quiz generated successfully and saved to: {filename}{api_result}\n\n{response.text}"
+            
+        except Exception as file_error:
+            return f"Quiz generated but failed to save to file: {str(file_error)}\n\n{response.text}"
+        
+    except Exception as e:
+        return f"Error generating German quiz: {str(e)}"
 
 # ---- Resource (read-only) ----
 @mcp.resource("time://now")
