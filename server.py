@@ -1,9 +1,6 @@
 # server.py
 from datetime import datetime, timezone
 from fastmcp import FastMCP
-import cv2
-import numpy as np
-from PIL import Image
 import base64
 import io
 import requests
@@ -416,17 +413,18 @@ def generate_german_quiz(content: str, num_questions: int = 10) -> dict:
     Returns:
         Dictionary containing:
         - api_response: Response from the quiz API (or None if failed)
+        - quiz_id: ID of the created quiz (if successful)
+        - quiz_link: Link to access the quiz (format: http://localhost:8090/quizzes/<quiz_id>)
         - status: "success" or "error" 
         - error: Error message if something went wrong (optional)
-    Make sure you also mention the quiz id in the response.
-    Also make sure you mention the quiz link in the response.
-    quiz link format is http://localhost:8090/quizzes/<quiz_id>
     """
     try:
         # Validate inputs
         if not content or not content.strip():
             return {
                 "api_response": None,
+                "quiz_id": None,
+                "quiz_link": None,
                 "status": "error",
                 "error": "Content cannot be empty"
             }
@@ -440,6 +438,8 @@ def generate_german_quiz(content: str, num_questions: int = 10) -> dict:
         except ValueError as e:
             return {
                 "api_response": None,
+                "quiz_id": None,
+                "quiz_link": None,
                 "status": "error",
                 "error": f"{str(e)}. Please set the GOOGLE_API_KEY environment variable."
             }
@@ -551,6 +551,8 @@ def generate_german_quiz(content: str, num_questions: int = 10) -> dict:
         if not response.text:
             return {
                 "api_response": None,
+                "quiz_id": None,
+                "quiz_link": None,
                 "status": "error",
                 "error": "No questions were generated. Please try again."
             }
@@ -571,9 +573,25 @@ def generate_german_quiz(content: str, num_questions: int = 10) -> dict:
                 api_client = QuizAPIClient()
                 api_response = api_client.send_quiz(full_quiz_text)
                 
-                # Return only API response
+                # Extract quiz_id from API response
+                quiz_id = None
+                quiz_link = None
+                
+                if isinstance(api_response, dict):
+                    # Try common field names for quiz ID
+                    quiz_id = (api_response.get('quiz_id') or 
+                             api_response.get('id') or 
+                             api_response.get('quizId') or
+                             api_response.get('data', {}).get('id') if isinstance(api_response.get('data'), dict) else None)
+                
+                if quiz_id:
+                    quiz_link = f"http://localhost:8090/quizzes/{quiz_id}"
+                
+                # Return API response with quiz info
                 result = {
                     "api_response": api_response,
+                    "quiz_id": quiz_id,
+                    "quiz_link": quiz_link,
                     "status": "success"
                 }
                 return result
@@ -582,6 +600,8 @@ def generate_german_quiz(content: str, num_questions: int = 10) -> dict:
                 # Return error if API fails
                 result = {
                     "api_response": None,
+                    "quiz_id": None,
+                    "quiz_link": None,
                     "status": "error",
                     "error": f"Failed to send to API: {str(api_error)}"
                 }
@@ -590,6 +610,8 @@ def generate_german_quiz(content: str, num_questions: int = 10) -> dict:
         except Exception as e:
             return {
                 "api_response": None,
+                "quiz_id": None,
+                "quiz_link": None,
                 "status": "error",
                 "error": f"Error processing quiz: {str(e)}"
             }
@@ -597,6 +619,8 @@ def generate_german_quiz(content: str, num_questions: int = 10) -> dict:
     except Exception as e:
         return {
             "api_response": None,
+            "quiz_id": None,
+            "quiz_link": None,
             "status": "error",
             "error": f"Error generating German quiz: {str(e)}"
         }
