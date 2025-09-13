@@ -406,7 +406,7 @@ def browse_url(url: str, max_length: int = 5000) -> str:
         return f"Error processing webpage: {str(e)}"
 
 @mcp.tool
-def generate_german_quiz(content: str, num_questions: int = 10) -> str:
+def generate_german_quiz(content: str, num_questions: int = 10) -> dict:
     """Generate German language quiz questions based on provided content.
     
     Args:
@@ -414,12 +414,22 @@ def generate_german_quiz(content: str, num_questions: int = 10) -> str:
         num_questions: Number of questions to generate (default 10, max 100)
     
     Returns:
-        Formatted quiz with German grammar questions
+        Dictionary containing:
+        - api_response: Response from the quiz API (or None if failed)
+        - status: "success" or "error" 
+        - error: Error message if something went wrong (optional)
+    Make sure you also mention the quiz id in the response.
+    Also make sure you mention the quiz link in the response.
+    quiz link format is http://localhost:8090/quizzes/<quiz_id>
     """
     try:
         # Validate inputs
         if not content or not content.strip():
-            return "Error: Content cannot be empty"
+            return {
+                "api_response": None,
+                "status": "error",
+                "error": "Content cannot be empty"
+            }
         
         if num_questions < 1 or num_questions > 100:
             num_questions = 10
@@ -428,7 +438,11 @@ def generate_german_quiz(content: str, num_questions: int = 10) -> str:
         try:
             model = initialize_gemini()
         except ValueError as e:
-            return f"Error: {str(e)}. Please set the GOOGLE_API_KEY environment variable."
+            return {
+                "api_response": None,
+                "status": "error",
+                "error": f"{str(e)}. Please set the GOOGLE_API_KEY environment variable."
+            }
         
         # Create the system prompt
         system_prompt = f"""
@@ -535,13 +549,15 @@ def generate_german_quiz(content: str, num_questions: int = 10) -> str:
         response = model.generate_content(system_prompt)
         
         if not response.text:
-            return "Error: No questions were generated. Please try again."
+            return {
+                "api_response": None,
+                "status": "error",
+                "error": "No questions were generated. Please try again."
+            }
         
-        # Save response to file and send to API
+        # Send to API and return response
         try:
             from datetime import datetime
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"german_quiz_{timestamp}.txt"
             
             # Prepare the full quiz text with metadata
             full_quiz_text = f"German Quiz Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
@@ -550,30 +566,40 @@ def generate_german_quiz(content: str, num_questions: int = 10) -> str:
             full_quiz_text += "="*80 + "\n\n"
             full_quiz_text += response.text
             
-            # Save to file
-            with open(filename, 'w', encoding='utf-8') as f:
-                f.write(full_quiz_text)
-            
             # Send to API
-            api_result = ""
             try:
                 api_client = QuizAPIClient()
                 api_response = api_client.send_quiz(full_quiz_text)
-                api_result = f"\n✅ Quiz also sent to API successfully!"
-                if isinstance(api_response, dict):
-                    api_result += f"\nAPI Response: {api_response}"
-                else:
-                    api_result += f"\nAPI Response: {str(api_response)[:200]}..."
+                
+                # Return only API response
+                result = {
+                    "api_response": api_response,
+                    "status": "success"
+                }
+                return result
+                
             except Exception as api_error:
-                api_result = f"\n⚠️ Failed to send to API: {str(api_error)}"
+                # Return error if API fails
+                result = {
+                    "api_response": None,
+                    "status": "error",
+                    "error": f"Failed to send to API: {str(api_error)}"
+                }
+                return result
             
-            return f"Quiz generated successfully and saved to: {filename}{api_result}\n\n{response.text}"
-            
-        except Exception as file_error:
-            return f"Quiz generated but failed to save to file: {str(file_error)}\n\n{response.text}"
+        except Exception as e:
+            return {
+                "api_response": None,
+                "status": "error",
+                "error": f"Error processing quiz: {str(e)}"
+            }
         
     except Exception as e:
-        return f"Error generating German quiz: {str(e)}"
+        return {
+            "api_response": None,
+            "status": "error",
+            "error": f"Error generating German quiz: {str(e)}"
+        }
 
 # ---- Resource (read-only) ----
 @mcp.resource("time://now")

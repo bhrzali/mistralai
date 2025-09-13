@@ -1,0 +1,167 @@
+German Quiz Generated on: 2025-09-13 17:04:28
+Number of Questions: 10
+Content Source: Die Zukunft I (Futur I) wird im Deutschen verwendet, um über zukünftige Ereignisse oder Absichten zu...
+================================================================================
+
+TOPIC: Die Zukunft (Futur I und Futur II)
+EXPLANATION: This topic is appropriate because it directly addresses the provided content about forming and using Futur I (simple future actions/intentions) and Futur II (actions completed by a specific point in the future), which are essential for expressing future events in German.
+
+Question 1
+Prompt: Morgen _________ ich meine Freunde treffen.
+A) werde
+B) wird
+C) werden
+D) werdet
+Answer: A
+Explanation:
+***
+TRANSLATION: [Tomorrow I will meet my friends.]
+AI_ANSWER: werde
+AI_CORRECTION: No correction needed
+EXPLANATION: For Futur I, the auxiliary verb 'werden' must be conjugated according to the subject. The subject 'ich' (I) takes the conjugation 'werde'. The infinitive of the main verb ('treffen') stays at the end of the sentence.
+ADDITIONAL_EXAMPLES: Du wirst lernen., Er wird arbeiten., Wir werden spielen.
+***
+
+Question 2
+Prompt: Wählen Sie den grammatisch korrekten Satz.
+A) Er wird das Buch lesen.
+B) Er werden das Buch lesen.
+C) Er lest das Buch werden.
+D) Er liest das Buch werden.
+Answer: A
+Explanation:
+***
+TRANSLATION: [Choose the grammatically correct sentence.]
+AI_ANSWER: Er wird das Buch lesen.
+AI_CORRECTION: No correction needed
+EXPLANATION: In Futur I, the conjugated form of 'werden' is in the second position of the main clause, and the infinitive of the main verb ('lesen') is placed at the very end of the sentence. For the subject 'er' (he), the correct conjugation of 'werden' is 'wird'.
+ADDITIONAL_EXAMPLES: Sie wird einen Kuchen backen., Wir werden morgen einkaufen gehen., Ich werde eine E-Mail schreiben.
+***
+
+Question 3
+Prompt: Welcher Satz hat die richtige Wortstellung?
+A) Wir werden am Wochenende besuchen unsere Oma.
+B) Wir werden unsere Oma am Wochenende besuchen.
+C) Wir besuchen werden unsere Oma am Wochenende.
+D) Unsere Oma werden wir am Wochenende besuchen.
+Answer: B
+Explanation:
+***
+TRANSLATION: [Which sentence has the correct word order?]
+AI_ANSWER: Wir werden unsere Oma am Wochenende besuchen.
+AI_CORRECTION: No correction needed
+EXPLANATION: In a standard main clause using Futur I, the conjugated form of 'werden' is in the second position. The infinitive verb ('besuchen') always goes to the very end of the sentence. Elements like object ('unsere Oma') and time ('am Wochenende') come between 'werden' and the infinitive.
+ADDITIONAL_EXAMPLES: Ich werde nächste Woche eine Präsentation halten., Du wirst heute Abend fernsehen., Sie werden morgen früh aufstehen.
+***
+
+Question 4
+Prompt: Bis nächsten Monat _________ ich mein Studium _________.
+A) werde...beenden
+B) werde...beendet haben
+C) werde...beendet sein
+D) wird...beenden
+Answer: B
+Explanation:
+***
+TRANSLATION: [By next month, I will have finished my studies.]
+AI_ANSWER: werde...beendet haben
+AI_CORRECTION: No correction needed
+EXPLANATION: The phrase "Bis nächsten Monat" (By next month) indicates that an action will be completed by a specific point in the future. This requires Futur II, which is formed with 'werden' + Partizip II ('beendet') + 'haben' or 'sein'. Since 'studieren' (or 'beenden' when referring to 'Studium') typically takes 'haben' in perfect tenses, 'werden...beendet haben' is correct for the subject 'ich'.
+ADDITIONAL_EXAMPLES: Bis zum Abend wird er das Essen gekocht haben., Bis Sonntag wird sie alle Geschenke gekauft haben., In einer Stunde werden wir die Aufgabe erledigt haben.
+***
+
+Question 5
+Prompt: Welcher Satz bedeutet: "She will buy a new car next year."?
+A) Sie kaufte ein neues Auto nächstes Jahr.
+B) Sie wird nächstes Jahr ein neues Auto kaufen.
+C) Sie hat nächstes Jahr ein neues Auto gekauft.
+D) Sie kauft nächstes Jahr ein neues Auto.
+Answer: B
+Explanation:
+***
+TRANSLATION: [Which sentence means: "She will buy a new car next year."?]
+AI_ANSWER: Sie wird nächstes Jahr ein neues Auto kaufen.
+AI_CORRECTION: No correction needed
+EXPLANATION: The English sentence expresses a future intention or event, which is translated using Futur I in German. Futur I is formed with the conjugated form of 'werden' ('wird' for 'sie') and the infinitive of the main verb ('kaufen') at the end.
+ADDITIONAL_EXAMPLES: Er wird morgen seine Arbeit beenden., Wir werden im Sommer verreisen., Ich werde dir später anrufen.
+***
+
+Question 6
+Prompt: Wenn du morgen ankommst, _________ er die Arbeit schon _________ haben.
+A) wird...gemacht
+B) wird...machen
+C) wird...gemacht sein
+D) werden...gemacht
+Answer: A
+Explanation:
+***
+TRANSLATION: [When you arrive tomorrow, he will have already done the work.]
+AI_ANSWER: wird...gemacht
+AI_CORRECTION: No correction needed
+EXPLANATION: This sentence describes an action that will be completed by a future point ('Wenn du morgen ankommst' - by the time you arrive tomorrow). This requires Futur II. Futur II is formed with 'werden' (conjugated for 'er' it's 'wird') + Partizip II of the main verb ('gemacht') + the auxiliary 'haben' or 'sein'. 'Machen' uses 'haben' as its auxiliary.
+ADDITIONAL_EXAMPLES: Wenn wir ankommen, werden sie schon gegessen haben., Bis dahin wirst du die Prüfung bestanden haben., Er wird bis dann den Brief geschrieben haben.
+***
+
+Question 7
+Prompt: Welcher Satz ist grammatikalisch korrekt?
+A) Bis zum Abend wird er gegessen haben.
+B) Bis zum Abend wird er haben gegessen.
+C) Bis zum Abend haben er gegessen wird.
+D) Bis zum Abend wird er essen haben.
+Answer: A
+Explanation:
+***
+TRANSLATION: [Which sentence is grammatically correct?]
+AI_ANSWER: Bis zum Abend wird er gegessen haben.
+AI_CORRECTION: No correction needed
+EXPLANATION: This is a Futur II sentence, indicating an action completed by 'Bis zum Abend' (by the evening). The correct structure is 'werden' (conjugated for 'er' it's 'wird') + Partizip II of the main verb ('gegessen') + the auxiliary verb 'haben' (or 'sein') at the very end of the sentence.
+ADDITIONAL_EXAMPLES: Sie wird die Blumen bis dahin gegossen haben., Wir werden das Buch bis nächste Woche gelesen haben., Du wirst deine Hausaufgaben bis zum Treffen gemacht haben.
+***
+
+Question 8
+Prompt: Wählen Sie den Satz mit der korrekten Wortstellung.
+A) Das Projekt wird bis nächstes Jahr abgeschlossen sein.
+B) Bis nächstes Jahr das Projekt wird abgeschlossen sein.
+C) Abgeschlossen sein wird das Projekt bis nächstes Jahr.
+D) Das Projekt abgeschlossen sein wird bis nächstes Jahr.
+Answer: A
+Explanation:
+***
+TRANSLATION: [Choose the sentence with the correct word order.]
+AI_ANSWER: Das Projekt wird bis nächstes Jahr abgeschlossen sein.
+AI_CORRECTION: No correction needed
+EXPLANATION: This is a Futur II sentence with a passive construction, so it uses 'sein' as the auxiliary. In a standard main clause, the conjugated 'werden' ('wird' for 'Das Projekt') is in the second position. The Partizip II ('abgeschlossen') and the auxiliary 'sein' both go to the very end of the sentence, in that specific order: Partizip II + sein.
+ADDITIONAL_EXAMPLES: Die Gäste werden bis 10 Uhr angekommen sein., Der Zug wird pünktlich abgefahren sein., Ich werde umgezogen sein, bevor du kommst.
+***
+
+Question 9
+Prompt: Nächste Woche _________ ich einen neuen Kurs _________.
+A) werde...beginnen
+B) werde...begonnen haben
+C) wird...beginnen
+D) werde...beginnen sein
+Answer: A
+Explanation:
+***
+TRANSLATION: [Next week I will start a new course.]
+AI_ANSWER: werde...beginnen
+AI_CORRECTION: No correction needed
+EXPLANATION: The phrase "Nächste Woche" (Next week) indicates a simple future intention or event without emphasis on completion by a specific future point. Therefore, Futur I is used, formed with 'werden' (conjugated for 'ich' it's 'werde') and the infinitive of the main verb ('beginnen') at the end.
+ADDITIONAL_EXAMPLES: Morgen werden wir eine Wanderung machen., Er wird am Samstag Deutsch lernen., Sie werden bald umziehen.
+***
+
+Question 10
+Prompt: Welcher Satz bedeutet: "By next week, she will have moved into her new apartment."?
+A) Nächste Woche wird sie in ihre neue Wohnung umziehen.
+B) Bis nächste Woche wird sie in ihre neue Wohnung umgezogen sein.
+C) Nächste Woche hat sie in ihre neue Wohnung umgezogen.
+D) Nächste Woche zieht sie in ihre neue Wohnung um.
+Answer: B
+Explanation:
+***
+TRANSLATION: [Which sentence means: "By next week, she will have moved into her new apartment."?]
+AI_ANSWER: Bis nächste Woche wird sie in ihre neue Wohnung umgezogen sein.
+AI_CORRECTION: No correction needed
+EXPLANATION: The phrase "By next week" (Bis nächste Woche) clearly indicates an action that will be completed by a specific time in the future, requiring Futur II. The verb 'umziehen' (to move residence) expresses a change of location, so it uses 'sein' as its auxiliary verb in perfect tenses and Futur II. The structure is 'werden' (wird for 'sie') + Partizip II ('umgezogen') + 'sein' at the end.
+ADDITIONAL_EXAMPLES: Bis zum Mittag werden wir mit dem Essen fertig sein., Bis morgen früh wird der Schnee geschmolzen sein., In zwei Stunden wird der Film zu Ende sein.
+***
