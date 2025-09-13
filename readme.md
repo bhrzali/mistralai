@@ -8,6 +8,10 @@ This is a FastMCP server with various tools including a German language quiz gen
 uvicorn server:app --host 127.0.0.1 --port 8000
 ```
 
+## Description
+
+Put text into Le Chat -> the MCP server will generate the quiz -> return the link
+
 ## German Quiz Tool
 
 The server includes a `generate_german_quiz` tool that creates German language multiple-choice questions based on provided content.
@@ -104,3 +108,10 @@ The API client can be configured in two ways:
    - Change the endpoint URL if needed
    - Add API key authentication if required
    - Customize content type and source identifiers
+
+## Todos
+
+- [ ] Deploy to FastMCP
+- [x] (Optional) Port forwarding for dev (Just use http://localhost:8000/mcp)
+- [ ] Frontend setup (Macin, Alex)
+- [ ] Build frontend for the quiz app

@@ -17,3 +17,7 @@ run = "uvicorn server:app --host 127.0.0.1 --port 8000"
 [tasks.start_inspector]
 alias = "si"
 run = "DANGEROUSLY_OMIT_AUTH=true npx @modelcontextprotocol/inspector"
+
+[tasks.install_deps]
+alias = "id"
+run="uvp install -r requirements.txt"
