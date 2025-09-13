@@ -24,6 +24,11 @@ pip install -r requirements.txt
 export GEMINI_API_KEY='your-google-api-key'
 ```
 
+3. Set up the Quiz API endpoint (optional):
+```bash
+export QUIZ_API_ENDPOINT='http://127.0.0.1:8090/quizzes/parse'
+```
+
 Get your API key from: https://makersuite.google.com/app/apikey
 
 ### Usage
@@ -79,14 +84,23 @@ The tool automatically:
    - UTF-8 encoding for proper German character support
 
 2. **Sends the quiz to the database API**:
-   - Endpoint: `http://127.0.0.1:8090/quizzes/parse`
+   - Endpoint: Configurable via `QUIZ_API_ENDPOINT` environment variable
+   - Default: `http://127.0.0.1:8090/quizzes/parse`
    - Automatically parses and stores the quiz in the database
    - Provides feedback on API success/failure
    - Graceful fallback if API is unavailable
 
 ### API Configuration
 
-The API client can be configured by modifying the `QuizAPIClient` in `quiz_api_client.py`:
-- Change the endpoint URL if needed
-- Add API key authentication if required
-- Customize content type and source identifiers
+The API client can be configured in two ways:
+
+1. **Environment Variable** (Recommended):
+   ```bash
+   export QUIZ_API_ENDPOINT='http://your-api-server:port/quizzes/parse'
+   ```
+
+2. **Code Configuration**:
+   Modify the `QuizAPIClient` in `quiz_api_client.py`:
+   - Change the endpoint URL if needed
+   - Add API key authentication if required
+   - Customize content type and source identifiers

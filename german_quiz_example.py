@@ -25,8 +25,9 @@ def main():
     print(content)
     print("\n" + "="*50 + "\n")
     
-    # Set up environment variable (you would need to set this with your actual API key)
+    # Set up environment variables (you would need to set these with your actual values)
     # os.environ['GEMINI_API_KEY'] = 'your-api-key-here'
+    # os.environ['QUIZ_API_ENDPOINT'] = 'http://127.0.0.1:8090/quizzes/parse'
     
     try:
         # Generate quiz with 5 questions
@@ -45,7 +46,8 @@ def main():
         print("\nNote: To use this tool, you need to:")
         print("1. Install the required dependencies: pip install -r requirements.txt")
         print("2. Set your Google API key: export GEMINI_API_KEY='your-api-key'")
-        print("3. Get a Google API key from: https://makersuite.google.com/app/apikey")
+        print("3. Set your Quiz API endpoint: export QUIZ_API_ENDPOINT='http://127.0.0.1:8090/quizzes/parse'")
+        print("4. Get a Google API key from: https://makersuite.google.com/app/apikey")
 
 if __name__ == "__main__":
     main()

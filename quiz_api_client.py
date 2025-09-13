@@ -5,20 +5,21 @@ Quiz API Client for sending generated quizzes to the database API
 
 import requests
 import sys
+import os
 from typing import Optional, Dict, Any
 
 class QuizAPIClient:
     """Client for interacting with the German Quiz API"""
     
-    def __init__(self, endpoint: str = "http://127.0.0.1:8090/quizzes/parse", api_key: Optional[str] = None):
+    def __init__(self, endpoint: Optional[str] = None, api_key: Optional[str] = None):
         """
         Initialize the API client
         
         Args:
-            endpoint: The API endpoint URL
+            endpoint: The API endpoint URL (defaults to QUIZ_API_ENDPOINT env var)
             api_key: Optional API key for authentication
         """
-        self.endpoint = endpoint
+        self.endpoint = endpoint or os.getenv('QUIZ_API_ENDPOINT', 'http://127.0.0.1:8090/quizzes/parse')
         self.api_key = api_key
     
     def send_quiz(self, quiz_text: str, content_type: str = "german_quiz", source: str = "mcp-server") -> Dict[str, Any]:
