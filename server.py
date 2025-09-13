@@ -15,11 +15,6 @@ mcp = FastMCP(name="demo-fastmcp")
 # Use the FastMCP app directly
 app = mcp.http_app
 
-# ---- Tools ----
-from documents.document1 import summary as summary1, documentation as documentation1
-from documents.document2 import summary as summary2, documentation as documentation2
-from documents.document3 import summary as summary3, documentation as documentation3
-
 # German Quiz Helper Functions
 def german_cheat_sheet() -> str:
     """German grammar cheat sheet for quiz generation."""
@@ -91,60 +86,6 @@ def initialize_gemini():
         raise ValueError("GEMINI_API_KEY environment variable is required")
     genai.configure(api_key=api_key)
     return genai.GenerativeModel('gemini-2.5-flash')
-
-@mcp.tool
-def function_app_documentation(dummy: str = "") -> str:
-    f"""
-    This function takes a dummy parameter of string type and returns the documentation for the following summary
-    summary: {summary1}
-    """
-    return documentation1
-
-@mcp.tool
-def data_platform_infrastructure_documentation(dummy: str = "") -> str:
-    f"""
-    This function takes a dummy parameter of string type and returns the documentation for the following summary
-    summary: {summary2}
-    """
-    return documentation2
-
-@mcp.tool
-def microsoft_fabric_infrastructure_documentation(dummy: str = "") -> str:
-    f"""
-    This function takes a dummy parameter of string type and returns the documentation for the following summary
-    summary: {summary3}
-    """
-    return documentation3
-
-@mcp.tool
-def hello(name: str) -> str:
-    """Return a friendly greeting with the provided name."""
-    return f"Hello, {name}! 👋"
-
-@mcp.tool
-def sum_numbers(numbers: list[float]) -> float:
-    """Sum a list of numbers. Takes a list of float values."""
-    return sum(numbers)
-
-@mcp.tool
-def multiply_numbers(numbers: list[float]) -> float:
-    """Multiply a list of numbers. Takes a list of float values."""
-    result = 1.0
-    for num in numbers:
-        result *= num
-    return result
-
-@mcp.tool
-def get_time(dummy: str = "") -> str:
-    """Get the current UTC time in ISO 8601 format. Takes a dummy paramter of string type.
-       Only use this tool if asked for the time.
-    """
-    return datetime.now(timezone.utc).isoformat()
-
-@mcp.tool
-def interesting_fact(dummy: str = "") -> str:
-    """Return an interesting fact. Takes a dummy paramter of string type."""
-    return "The moon is 238,855 miles away from Earth."
 
 @mcp.tool
 def solve_sudoku(puzzle: str) -> str:
