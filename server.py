@@ -74,6 +74,15 @@ def explanation_format() -> str:
     ADDITIONAL_EXAMPLES: example2, example3, example4
     """
 
+def explanation_format_french() -> str:
+    return """
+    strictly follow the the following format for explanation otherwise you will be penalized.
+    TRANSLATION: [English translation of the French question]
+    AI_ANSWER: [Solve the quesiton and give the correct answer but don't include the option letter in the answer]
+    AI_CORRECTION: [If the sentence with the provided options is incorrect, provide the complete correct French sentence and additionally you must explain your reasoning. If correct, write "No correction needed"] 
+    EXPLANATION: [Brief explantion of the grammar rule in simple terms in English explaining which answer is correct and why. Make your explanation beginner friendly. Don't include the option letter in the explanation]
+    ADDITIONAL_EXAMPLES: example2, example3, example4
+    """
 # Initialize Google AI (requires API key)
 def initialize_gemini():
     """Initialize Google Gemini AI client."""
@@ -623,6 +632,226 @@ def generate_german_quiz(content: str, num_questions: int = 10) -> dict:
             "quiz_link": None,
             "status": "error",
             "error": f"Error generating German quiz: {str(e)}"
+        }
+
+@mcp.tool
+def generate_french_quiz(content: str, num_questions: int = 10) -> dict:
+    """Generate French language quiz questions based on provided content.
+    
+    Args:
+        content: The content/text to base the questions on
+        num_questions: Number of questions to generate (default 10, max 100)
+    
+    Returns:
+        Dictionary containing:
+        - api_response: Response from the quiz API (or None if failed)
+        - quiz_id: ID of the created quiz (if successful)
+        - quiz_link: Link to access the quiz (format: http://localhost:8090/quizzes/<quiz_id>)
+        - status: "success" or "error" 
+        - error: Error message if something went wrong (optional)
+    """
+    try:
+        # Validate inputs
+        if not content or not content.strip():
+            return {
+                "api_response": None,
+                "quiz_id": None,
+                "quiz_link": None,
+                "status": "error",
+                "error": "Content cannot be empty"
+            }
+        
+        if num_questions < 1 or num_questions > 100:
+            num_questions = 10
+        
+        # Initialize Gemini AI
+        try:
+            model = initialize_gemini()
+        except ValueError as e:
+            return {
+                "api_response": None,
+                "quiz_id": None,
+                "quiz_link": None,
+                "status": "error",
+                "error": f"{str(e)}. Please set the GOOGLE_API_KEY environment variable."
+            }
+        
+        # Create the system prompt
+        system_prompt = f"""
+            You are an experienced French language instructor with 20 years of teaching experience.
+            Your task is to create EXACTLY {num_questions} PRACTICAL, application-based multiple-choice questions based on the following content:
+
+            Content for reference:
+            {content}
+
+            Guidelines:
+            1. You MUST generate EXACTLY {num_questions} questions - no more, no less.
+            2. Focus on real-world usage, not theory.
+            3. Use authentic, natural French sentences.
+            4. Across the whole set, include at least one of each question type:
+            • Fill in the blank (For fill in the blanks, sentence can have multiple blanks). But make sure not to give unnecessary blanks.
+            • Choose the grammatically correct sentence  
+            • Identify the sentence with the correct word order  
+            • Select the appropriate word/phrase for the context  
+            • Find the sentence that best expresses the given meaning
+            5. Each question must have exactly one correct answer and three plausible distractors.
+            6. Generate varied questions.
+            7. The topic should be a correct French grammar topic and concise
+            8. If the content is not relevant to French grammar, generate questions related to that content in French language.
+            9. Avoid generating obscene or offensive questions.
+            10. Avoid generating any political or religious questions.
+            11. Make sure the questions are beginner friendly but grammatically correct.
+
+            **GRAMMAR RULES:**
+            Make sure that you are following the correct grammar rules for:
+            - Articles (definite, indefinite, partitive)
+            - Gender agreement (masculine/feminine)
+            - Number agreement (singular/plural)
+            - Verb conjugations and tenses (present, passé composé, imparfait, futur, etc.)
+            - Word order and sentence structure
+            - Prepositions and their usage
+            - Pronouns (subject, object, reflexive, relative)
+            - Adjectives and their agreement
+            - Adverbs and their placement
+            - Subjunctive mood
+            - Conditional mood
+            - Negation (ne...pas, ne...jamais, etc.)
+            - Question formation
+            - Possessive adjectives and pronouns
+            - Demonstrative adjectives and pronouns
+            - Comparative and superlative forms
+
+            **CRITICAL FORMAT REQUIREMENTS:**
+            You MUST follow this EXACT format. Do not deviate from it:
+            
+            1. First, output the topic in this EXACT format:
+            
+            TOPIC: <grammar topic in french>
+            EXPLANATION: <brief explanation of why this topic is appropriate>
+
+            2. Then for each question from 1 to {num_questions}, use this EXACT format:
+
+            Question 1
+            Prompt: <question text in French>
+            A) <option A>
+            B) <option B>
+            C) <option C>
+            D) <option D>
+            Answer: <single uppercase letter A–D>
+            Explanation:
+            ***
+            {explanation_format_french()}
+            ***
+
+
+            Question 2
+            Prompt: <question text in French>
+            A) <option A>
+            B) <option B>
+            C) <option C>
+            D) <option D>
+            Answer: <single uppercase letter A–D>
+            Explanation:
+            ***
+            {explanation_format_french()}
+            ***
+
+            [Continue for all {num_questions} questions]
+
+            Format Rules:
+            • You MUST generate EXACTLY {num_questions} questions
+            • Each question MUST start with "Question N" where N is the question number
+            • Each question MUST have all components: Prompt, A-D options, Answer, and Explanation
+            • Each question MUST have only 4 options A, B, C, D. If you follow the format you will be rewarded with big bonus.
+            • Don't forget to enclose the explanation in *** and ***.
+            • Don't forget to provide the explanation according to the format.
+            • Keep the labels ("Prompt:", "A)", "Answer:", etc.) exactly as written
+            • Place one blank line between questions
+            • No extra blank lines inside a question block
+            • Ensure French diacritics are correct (é, è, ê, ç, à, etc.)
+            • Do not add any markdown, bullets, or headers/footers
+
+            Begin generating the questions now.
+        """
+        
+        # Generate content using Gemini
+        response = model.generate_content(system_prompt)
+        
+        if not response.text:
+            return {
+                "api_response": None,
+                "quiz_id": None,
+                "quiz_link": None,
+                "status": "error",
+                "error": "No questions were generated. Please try again."
+            }
+        
+        # Send to API and return response
+        try:
+            from datetime import datetime
+            
+            # Prepare the full quiz text with metadata
+            full_quiz_text = f"French Quiz Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+            full_quiz_text += f"Number of Questions: {num_questions}\n"
+            full_quiz_text += f"Content Source: {content[:100]}...\n"
+            full_quiz_text += "="*80 + "\n\n"
+            full_quiz_text += response.text
+            
+            # Send to API
+            try:
+                api_client = QuizAPIClient()
+                api_response = api_client.send_quiz(full_quiz_text, content_type="german_quiz")
+                
+                # Extract quiz_id from API response
+                quiz_id = None
+                quiz_link = None
+                
+                if isinstance(api_response, dict):
+                    # Try common field names for quiz ID
+                    quiz_id = (api_response.get('quiz_id') or 
+                             api_response.get('id') or 
+                             api_response.get('quizId') or
+                             api_response.get('data', {}).get('id') if isinstance(api_response.get('data'), dict) else None)
+                
+                if quiz_id:
+                    quiz_link = f"http://localhost:8090/quizzes/{quiz_id}"
+                
+                # Return API response with quiz info
+                result = {
+                    "api_response": api_response,
+                    "quiz_id": quiz_id,
+                    "quiz_link": quiz_link,
+                    "status": "success"
+                }
+                return result
+                
+            except Exception as api_error:
+                # Return error if API fails
+                result = {
+                    "api_response": None,
+                    "quiz_id": None,
+                    "quiz_link": None,
+                    "status": "error",
+                    "error": f"Failed to send to API: {str(api_error)}"
+                }
+                return result
+            
+        except Exception as e:
+            return {
+                "api_response": None,
+                "quiz_id": None,
+                "quiz_link": None,
+                "status": "error",
+                "error": f"Error processing quiz: {str(e)}"
+            }
+        
+    except Exception as e:
+        return {
+            "api_response": None,
+            "quiz_id": None,
+            "quiz_link": None,
+            "status": "error",
+            "error": f"Error generating French quiz: {str(e)}"
         }
 
 # ---- Resource (read-only) ----

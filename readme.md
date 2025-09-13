@@ -12,9 +12,17 @@ uvicorn server:app --host 127.0.0.1 --port 8000
 
 Put text into Le Chat -> the MCP server will generate the quiz -> return the link
 
-## German Quiz Tool
+## Language Quiz Tools
+
+The server includes quiz generation tools for multiple languages:
+
+### German Quiz Tool
 
 The server includes a `generate_german_quiz` tool that creates German language multiple-choice questions based on provided content.
+
+### French Quiz Tool
+
+The server includes a `generate_french_quiz` tool that creates French language multiple-choice questions based on provided content.
 
 ### Setup
 
@@ -37,12 +45,13 @@ Get your API key from: https://makersuite.google.com/app/apikey
 
 ### Usage
 
-The tool accepts two parameters:
+Both tools accept the same parameters:
 - `content` (string): The text content to base questions on
 - `num_questions` (int): Number of questions to generate (default: 10, max: 100)
 
-### Example
+### Examples
 
+**German Quiz:**
 ```python
 from server import generate_german_quiz
 
@@ -51,12 +60,31 @@ quiz = generate_german_quiz(content, num_questions=5)
 print(quiz)
 ```
 
+**French Quiz:**
+```python
+from server import generate_french_quiz
+
+content = "La France est un pays en Europe. La capitale est Paris."
+quiz = generate_french_quiz(content, num_questions=5)
+print(quiz)
+```
+
 ### Features
 
+**German Quiz:**
 - Generates practical, application-based German grammar questions
 - Includes multiple question types: fill-in-the-blank, grammar correction, word order, etc.
 - Provides detailed explanations for each answer
 - Follows proper German grammar rules and conventions
+- Beginner-friendly but grammatically correct
+- Avoids offensive or political content
+
+**French Quiz:**
+- Generates practical, application-based French grammar questions
+- Includes multiple question types: fill-in-the-blank, grammar correction, word order, etc.
+- Provides detailed explanations for each answer
+- Follows proper French grammar rules and conventions
+- Covers French-specific topics like gender agreement, verb conjugations, subjunctive mood
 - Beginner-friendly but grammatically correct
 - Avoids offensive or political content
 
