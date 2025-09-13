@@ -9,6 +9,8 @@ import io
 import requests
 from bs4 import BeautifulSoup
 import urllib.parse
+import google.generativeai as genai
+import os
 
 mcp = FastMCP(name="demo-fastmcp")
 
@@ -19,6 +21,69 @@ app = mcp.http_app
 from documents.document1 import summary as summary1, documentation as documentation1
 from documents.document2 import summary as summary2, documentation as documentation2
 from documents.document3 import summary as summary3, documentation as documentation3
+
+# German Quiz Helper Functions
+def german_cheat_sheet() -> str:
+    """German grammar cheat sheet for quiz generation."""
+    return """
+    GERMAN GRAMMAR CHEAT SHEET:
+    
+    ARTICLES:
+    - Definite: der (masc), die (fem), das (neut), die (pl)
+    - Indefinite: ein (masc), eine (fem), ein (neut), keine (pl)
+    - Cases: Nominativ, Akkusativ, Dativ, Genitiv
+    
+    ADJECTIVES:
+    - Strong declension: when no article precedes
+    - Weak declension: when definite article precedes
+    - Mixed declension: when indefinite article precedes
+    
+    VERBS:
+    - Regular: -en ending, stem changes in present tense
+    - Irregular: strong verbs with vowel changes
+    - Modal verbs: können, müssen, sollen, wollen, dürfen, mögen
+    - Separable verbs: prefix separates in main clause
+    
+    WORD ORDER:
+    - Main clause: Subject-Verb-Object
+    - Subordinate clause: Subject-Object-Verb
+    - Time-Manner-Place rule
+    - Verb always in second position in main clause
+    
+    PREPOSITIONS:
+    - Accusative: durch, für, gegen, ohne, um
+    - Dative: aus, bei, mit, nach, seit, von, zu
+    - Two-way: an, auf, hinter, in, neben, über, unter, vor, zwischen
+    
+    PRONOUNS:
+    - Personal: ich, du, er/sie/es, wir, ihr, sie
+    - Possessive: mein, dein, sein/ihr, unser, euer, ihr
+    - Demonstrative: dieser, jener
+    - Relative: der, die, das
+    
+    CONJUNCTIONS:
+    - Coordinating: und, oder, aber, sondern, denn
+    - Subordinating: weil, dass, wenn, als, obwohl
+    """
+
+def explanation_format() -> str:
+    return """
+    strictly follow the the following format for explanation otherwise you will be penalized.
+    TRANSLATION: [English translation of the German question]
+    AI_ANSWER: [Solve the quesiton and give the correct answer but don't include the option letter in the answer]
+    AI_CORRECTION: [If the sentence with the provided options is incorrect, provide the complete correct German sentence and additionally you must explain your reasoning. If correct, write "No correction needed"] 
+    EXPLANATION: [Brief explantion of the grammar rule in simple terms in English explaining which answer is correct and why. Make your explanation beginner friendly. Don't include the option letter in the explanation]
+    ADDITIONAL_EXAMPLES: example2, example3, example4
+    """
+
+# Initialize Google AI (requires API key)
+def initialize_gemini():
+    """Initialize Google Gemini AI client."""
+    api_key = os.getenv('GEMINI_API_KEY')
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY environment variable is required")
+    genai.configure(api_key=api_key)
+    return genai.GenerativeModel('gemini-2.5-flash')
 
 @mcp.tool
 def function_app_documentation(dummy: str = "") -> str:
@@ -630,6 +695,159 @@ def browse_url(url: str, max_length: int = 5000) -> str:
         return f"Error fetching URL: {str(e)}"
     except Exception as e:
         return f"Error processing webpage: {str(e)}"
+
+@mcp.tool
+def generate_german_quiz(content: str, num_questions: int = 10) -> str:
+    """Generate German language quiz questions based on provided content.
+    
+    Args:
+        content: The content/text to base the questions on
+        num_questions: Number of questions to generate (default 10, max 100)
+    
+    Returns:
+        Formatted quiz with German grammar questions
+    """
+    try:
+        # Validate inputs
+        if not content or not content.strip():
+            return "Error: Content cannot be empty"
+        
+        if num_questions < 1 or num_questions > 100:
+            num_questions = 10
+        
+        # Initialize Gemini AI
+        try:
+            model = initialize_gemini()
+        except ValueError as e:
+            return f"Error: {str(e)}. Please set the GOOGLE_API_KEY environment variable."
+        
+        # Create the system prompt
+        system_prompt = f"""
+            You are an experienced German language instructor with 20 years of teaching experience.
+            Your task is to create EXACTLY {num_questions} PRACTICAL, application-based multiple-choice questions based on the following content:
+
+            Content for reference:
+            {content}
+
+            Guidelines:
+            1. You MUST generate EXACTLY {num_questions} questions - no more, no less.
+            2. Focus on real-world usage, not theory.
+            3. Use authentic, natural German sentences.
+            4. Across the whole set, include at least one of each question type:
+            • Fill in the blank (For fill in the blanks, sentence can have multiple blanks). But make sure not to give unnecessary blanks.
+            • Choose the grammatically correct sentence  
+            • Identify the sentence with the correct word order  
+            • Select the appropriate word/phrase for the context  
+            • Find the sentence that best expresses the given meaning
+            5. Each question must have exactly one correct answer and three plausible distractors.
+            6. Generate varied questions.
+            7. The topic should be a correct german grammar topic and concise
+            8. If the content is not relevant to the german grammar, generate questions related to that content in german language.
+            9. Avoid generating obscene or offensive questions.
+            10. Avoid generating any political or religious questions.
+            11. Make sure the questions are beginner friendly but grammatically correct.
+
+            **GRAMMAR RULES:**
+            Make sure that you are following the correct grammar rules for:
+            - Articles, adjectives, and nouns (gender, case, number agreement)
+            - Verb conjugations and tenses
+            - Word order and sentence structure
+            - Prepositions and their required cases
+            - Pronouns and their declensions
+            - Subordinate clause constructions
+            - Adjectives and their cases
+            - Adverbs and their cases
+            - Prepositions and their cases
+            - Pronouns and their cases
+            - Conjunctions and their cases
+            - Interjections and their cases
+            - Adverbs and their cases
+            - Prepositions and their cases
+            - Pronouns and their cases
+            - Conjunctions and their cases
+            - Interjections and their cases
+            - Commas and their rules
+
+            Refer to the following German cheat sheet for more information:
+            {german_cheat_sheet()}
+
+            **CRITICAL FORMAT REQUIREMENTS:**
+            1. First, output the topic in this EXACT format given below otherwise you will be penalized:
+            
+            TOPIC: <grammar topic in german>
+            EXPLANATION: <brief explanation of why this topic is appropriate>
+
+            2. Then for each question from 1 to {num_questions}, use this EXACT format otherwise you will be penalized:
+
+            Question 1
+            Prompt: <question text in German>
+            A) <option A>
+            B) <option B>
+            C) <option C>
+            D) <option D>
+            Answer: <single uppercase letter A–D>
+            Explanation:
+            ***
+            {explanation_format()}
+            ***
+
+
+            Question 2
+            Prompt: <question text in German>
+            A) <option A>
+            B) <option B>
+            C) <option C>
+            D) <option D>
+            Answer: <single uppercase letter A–D>
+            Explanation:
+            ***
+            {explanation_format()}
+            ***
+
+            [Continue for all {num_questions} questions]
+
+            Format Rules:
+            • You MUST generate EXACTLY {num_questions} questions
+            • Each question MUST start with "Question N" where N is the question number
+            • Each question MUST have all components: Prompt, A-D options, Answer, and Explanation
+            • Each question MUST have only 4 options A, B, C, D. If you follow the format you will be rewarded with big bonus.
+            • Don't forget to enclose the explanation in *** and ***.
+            • Don't forget to provide the explanation according to the format.
+            • Keep the labels ("Prompt:", "A)", "Answer:", etc.) exactly as written
+            • Place one blank line between questions
+            • No extra blank lines inside a question block
+            • Ensure German diacritics are correct
+            • Do not add any markdown, bullets, or headers/footers
+
+            Begin generating the questions now.
+        """
+        
+        # Generate content using Gemini
+        response = model.generate_content(system_prompt)
+        
+        if not response.text:
+            return "Error: No questions were generated. Please try again."
+        
+        # Save response to file
+        try:
+            from datetime import datetime
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"german_quiz_{timestamp}.txt"
+            
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(f"German Quiz Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write(f"Number of Questions: {num_questions}\n")
+                f.write(f"Content Source: {content[:100]}...\n")
+                f.write("="*80 + "\n\n")
+                f.write(response.text)
+            
+            return f"Quiz generated successfully and saved to: {filename}\n\n{response.text}"
+            
+        except Exception as file_error:
+            return f"Quiz generated but failed to save to file: {str(file_error)}\n\n{response.text}"
+        
+    except Exception as e:
+        return f"Error generating German quiz: {str(e)}"
 
 # ---- Resource (read-only) ----
 @mcp.resource("time://now")

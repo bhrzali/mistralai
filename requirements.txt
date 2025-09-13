@@ -64,3 +64,5 @@ numpy
 Pillow
 beautifulsoup4
 lxml
+fastmcp
+google-generativeai
