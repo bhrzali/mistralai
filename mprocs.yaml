@@ -3,3 +3,7 @@ procs:
     shell: "uvicorn server:app --host 127.0.0.1 --port 8000 --reload"
   inspector:
     shell: "DANGEROUSLY_OMIT_AUTH=true npx @modelcontextprotocol/inspector"
+  port-forward:
+    # This won't be accessible from the mcp inspector because it is https
+    # shell: "tailscale funnel 8000"
+
