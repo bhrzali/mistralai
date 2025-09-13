@@ -7,3 +7,13 @@ _.python.venv = { path = ".venv", create = true }
 
 [tools]
 python = "3.10"
+uvicorn = "0.7"
+node = "22"
+
+[tasks.start_back]
+alias = "sb"
+run = "uvicorn server:app --host 127.0.0.1 --port 8000"
+
+[tasks.start_inspector]
+alias = "si"
+run = "DANGEROUSLY_OMIT_AUTH=true npx @modelcontextprotocol/inspector"

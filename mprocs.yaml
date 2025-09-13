@@ -1,0 +1,6 @@
+procs:
+  back:
+    # shell: "docker logs -f --tail 0 product-backend-1"
+    shell: "uvicorn server:app --host 127.0.0.1 --port 8000"
+  inspector:
+    shell: "DANGEROUSLY_OMIT_AUTH=true npx @modelcontextprotocol/inspector"
