@@ -34,6 +34,12 @@ def main():
         print("Generated Quiz:")
         print(quiz_result)
         
+        print("\n" + "="*50)
+        print("Note: The quiz has been:")
+        print("1. Saved to a timestamped text file")
+        print("2. Sent to the database API for storage")
+        print("3. Displayed above for immediate review")
+        
     except Exception as e:
         print(f"Error: {e}")
         print("\nNote: To use this tool, you need to:")

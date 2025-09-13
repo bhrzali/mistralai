@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 import urllib.parse
 import google.generativeai as genai
 import os
+from quiz_api_client import QuizAPIClient
 
 mcp = FastMCP(name="demo-fastmcp")
 
@@ -536,20 +537,37 @@ def generate_german_quiz(content: str, num_questions: int = 10) -> str:
         if not response.text:
             return "Error: No questions were generated. Please try again."
         
-        # Save response to file
+        # Save response to file and send to API
         try:
             from datetime import datetime
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"german_quiz_{timestamp}.txt"
             
-            with open(filename, 'w', encoding='utf-8') as f:
-                f.write(f"German Quiz Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-                f.write(f"Number of Questions: {num_questions}\n")
-                f.write(f"Content Source: {content[:100]}...\n")
-                f.write("="*80 + "\n\n")
-                f.write(response.text)
+            # Prepare the full quiz text with metadata
+            full_quiz_text = f"German Quiz Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+            full_quiz_text += f"Number of Questions: {num_questions}\n"
+            full_quiz_text += f"Content Source: {content[:100]}...\n"
+            full_quiz_text += "="*80 + "\n\n"
+            full_quiz_text += response.text
             
-            return f"Quiz generated successfully and saved to: {filename}\n\n{response.text}"
+            # Save to file
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(full_quiz_text)
+            
+            # Send to API
+            api_result = ""
+            try:
+                api_client = QuizAPIClient()
+                api_response = api_client.send_quiz(full_quiz_text)
+                api_result = f"\n✅ Quiz also sent to API successfully!"
+                if isinstance(api_response, dict):
+                    api_result += f"\nAPI Response: {api_response}"
+                else:
+                    api_result += f"\nAPI Response: {str(api_response)[:200]}..."
+            except Exception as api_error:
+                api_result = f"\n⚠️ Failed to send to API: {str(api_error)}"
+            
+            return f"Quiz generated successfully and saved to: {filename}{api_result}\n\n{response.text}"
             
         except Exception as file_error:
             return f"Quiz generated but failed to save to file: {str(file_error)}\n\n{response.text}"

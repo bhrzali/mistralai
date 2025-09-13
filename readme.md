@@ -69,10 +69,24 @@ Each quiz includes:
 - Detailed explanations in both German and English
 - Grammar rules and concepts being tested
 
-### File Saving
+### File Saving & API Integration
 
-The tool automatically saves each generated quiz to a timestamped text file:
-- Filename format: `german_quiz_YYYYMMDD_HHMMSS.txt`
-- Includes metadata: generation time, number of questions, content source
-- Saved in the current working directory
-- UTF-8 encoding for proper German character support
+The tool automatically:
+1. **Saves each generated quiz** to a timestamped text file:
+   - Filename format: `german_quiz_YYYYMMDD_HHMMSS.txt`
+   - Includes metadata: generation time, number of questions, content source
+   - Saved in the current working directory
+   - UTF-8 encoding for proper German character support
+
+2. **Sends the quiz to the database API**:
+   - Endpoint: `http://127.0.0.1:8090/quizzes/parse`
+   - Automatically parses and stores the quiz in the database
+   - Provides feedback on API success/failure
+   - Graceful fallback if API is unavailable
+
+### API Configuration
+
+The API client can be configured by modifying the `QuizAPIClient` in `quiz_api_client.py`:
+- Change the endpoint URL if needed
+- Add API key authentication if required
+- Customize content type and source identifiers
